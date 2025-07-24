@@ -1,0 +1,72 @@
+from abcde.models import *
+from django.contrib.auth.models import User
+
+user1 = User.objects.create_user('user1')
+user2 = User.objects.create_user('user2')
+
+author1 = Author.objects.create(user=user1)
+author2 = Author.objects.create(user=user2)
+
+cat_sport = Category.objects.create(name='Спорт')
+cat_politics = Category.objects.create(name='Политика')
+cat_education = Category.objects.create(name='Образование')
+cat_games = Category.objects.create(name='Компьютерные игры')
+
+post_news = Post.objects.create(author=author1, postType='NW', title='Сенсационная новость!', text='Текст сенсационной новости')
+post_article1 = Post.objects.create(author=author2, postType='AR', title='Интересная статья о политике', text='текст статьи о политике')
+post_article2 = Post.objects.create(author=author1, postType='AR', title='Обзор новой игры', text='Подробный обзор новой игры "clash royal"')
+
+post_news.categories.add(cat_sport, cat_politics)
+post_article1.categories.add(cat_politics, cat_education)
+post_article2.categories.add(cat_games)
+
+comment_01 = Comment.objects.create(post=post_news, user=user1, text='Комментарий к новости')
+comment_02 = Comment.objects.create(post=post_article1, user=user2, text='Комментарий к статье')
+comment_03 = Comment.objects.create(post=post_article2, user=user1, text='Комментарий к статье')
+
+comment_01.Like()
+comment_01.Like()
+comment_01.Dislike()
+
+comment_02.Dislike()
+comment_02.Dislike()
+
+comment_03.Like()
+comment_03.Like()
+comment_03.Like()
+comment_03.Dislike()
+comment_03.Dislike()
+
+post_article1.Like()
+post_article1.Like()
+post_article1.Dislike()
+
+post_article2.Like()
+post_article2.Like()
+post_article2.Like()
+
+post_news.Dislike()
+post_news.Dislike()
+
+author1.update_rating()
+author2.update_rating()
+
+print(f'{author1.user.username}: {author1.rating}')
+print(f'{author2.user.username} {author2.rating}')
+
+
+best_post = Post.objects.filter(postType='AR').order_by('-rating').first()
+
+if best_post:
+    print('--- Лучшая статья ---')
+    print(f'Дата добавления: {best_post.creationDate}')
+    print(f'Автор: {best_post.author.user.username}')
+    print(f'Рейтинг: {best_post.rating}')
+    print(f'Заголовок: {best_post.title}')
+    print(f'Превью: {best_post.preview()}')
+
+for comment in Comment.objects.all():
+    print(f'Автор: {comment.user.username}')
+    print(f'Рейтинг: {comment.rating}')
+    print(f'Дата добавления: {comment.creationDate}')
+    print(f'text: {comment.text}')
